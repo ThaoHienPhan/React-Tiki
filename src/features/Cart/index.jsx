@@ -3,7 +3,11 @@ import PropTypes from "prop-types";
 import { Box, Container, createTheme, Grid, Paper } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useDispatch, useSelector } from "react-redux";
-import { cartItemCountSelector, cartItemTotalSelector } from "./selector";
+import {
+  cartItemCountSelector,
+  cartItemsEachSelector,
+  cartItemTotalSelector,
+} from "./selector";
 import { removeItems, showProductList } from "../Cart/cartSlice";
 import { IconButton } from "material-ui";
 import Close from "@mui/icons-material/Close";
@@ -58,7 +62,6 @@ function CartFeature(props) {
   const cartTotal = useSelector(cartItemTotalSelector);
   const state = store.getState();
   const dispatch = useDispatch();
-  // console.log(state.cart.cartItems);
   const schema = yup
     .object({
       quantity: yup
@@ -69,20 +72,17 @@ function CartFeature(props) {
     })
     .required();
   const cartQuantity = state.cart.cartItems.map((item) => item.quantity);
-  const productId = state.cart.cartItems.map((item) => item.id);
   const form = useForm({
     defaultValues: {
-      quantity: cartQuantity,
+      quantity: cartQuantity ? cartQuantity : 1,
     },
     resolver: yupResolver(schema),
   });
-  
-  const handleRemove = () => {
-    const action = removeItems({ productId });
-    dispatch(action);
-    console.log(action);
-  };
 
+  const handleRemove = (index) => {
+    const action = removeItems(index);
+    dispatch(action);
+  };
   return (
     <Box pt={4}>
       <Container>
@@ -132,13 +132,19 @@ function CartFeature(props) {
                         {PriceFormat(item.product.salePrice)}
                       </TableCell>
                       <TableCell align="center">
-                        <QuantityField name="quantity" form={form} />
+                        <QuantityField
+                          name="quantity"
+                          item={item}
+                          form={form}
+                        />
                       </TableCell>
                       <TableCell align="left">
-                        {PriceFormat(cartTotal)}
+                        {PriceFormat(item.quantity * item.product.salePrice)}
                       </TableCell>
                       <TableCell align="left">
-                        <DeleteIcon onClick={handleRemove} />
+                        <DeleteIcon
+                          onClick={() => handleRemove(item.product.id)}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}

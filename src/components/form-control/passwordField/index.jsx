@@ -28,7 +28,7 @@ function PasswordField(props) {
     formState: { errors, ...formState },
   } = form;
   const hasError = !!errors[name];
-  console.log(errors[name]);
+
   return (
     <FormControl error={hasError} fullWidth margin="normal" variant="outlined">
       <InputLabel htmlFor={name}>{label}</InputLabel>

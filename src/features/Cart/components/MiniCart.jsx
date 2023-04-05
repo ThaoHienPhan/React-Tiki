@@ -16,15 +16,15 @@ import { useDispatch, useSelector } from "react-redux";
 import Close from "@mui/icons-material/Close";
 import { cartItemCountSelector } from "../selector";
 import { useSnackbar } from "notistack";
-import { hideMiniCart } from "../cartSlice";
+import { hideMiniCart, setQuantity } from "../cartSlice";
 import store from "app/store";
-import { useDetectClickOutside } from "react-detect-click-outside";
 import { useNavigate } from "react-router-dom";
 
 MiniCart.propTypes = {
   product: PropTypes.object,
   setValue: PropTypes.func,
   handleCloseOutside: PropTypes.func,
+  form: PropTypes.object,
 };
 const theme = createTheme();
 const useStyles = makeStyles(() => ({
@@ -70,12 +70,13 @@ function MiniCart({
   product = {},
   setValue = null,
   handleCloseOutside = null,
+  form = {},
 }) {
   const classes = useStyles();
   const thumbnailUrl = product.thumbnail
     ? `${STATIC_HOST}${product.thumbnail?.url}`
     : THUMBNAIL_PLACEHOLDER;
-  const quantity = useSelector(cartItemCountSelector);
+  // const quantity = useSelector(cartItemCountSelector);
   const productName = product.name;
   const dispatch = useDispatch();
   const state = store.getState();
@@ -86,9 +87,10 @@ function MiniCart({
     setValue(state.cart.miniCart);
   };
   const handleCart = () => {
+    handleClose();
     navigate("/cart");
   };
-
+  const quantity = form.getValues();
   return (
     <Box
       sx={{ border: 1, bgcolor: "background.paper", borderRadius: "10px" }}
@@ -105,7 +107,7 @@ function MiniCart({
             <Typography className={classes.productName}>
               {productName}
             </Typography>
-            <Typography>x{quantity}</Typography>
+            <Typography>x{quantity.quantity}</Typography>
           </Grid>
         </Grid>
         <Close className={classes.icon} onClick={handleClose} />

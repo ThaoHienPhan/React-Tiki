@@ -12,7 +12,7 @@ import { hideMiniCart, showMiniCart } from "features/Cart/cartSlice";
 import MiniCart from "features/Cart/components/MiniCart";
 import { useSnackbar } from "notistack";
 import store from "app/store";
-import { useDetectClickOutside } from 'react-detect-click-outside';
+import { useDetectClickOutside } from "react-detect-click-outside";
 
 AddToCart.propTypes = {
   onSubmit: PropTypes.func,
@@ -65,11 +65,9 @@ const useStyles = makeStyles(() => ({
 
 function AddToCart({ onSubmit = null, product = {} }) {
   const classes = useStyles();
-  const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
   const state = store.getState();
   const [value, setValue] = useState(state.cart.miniCart);
-
   const schema = yup
     .object({
       quantity: yup
@@ -90,17 +88,17 @@ function AddToCart({ onSubmit = null, product = {} }) {
       await onSubmit(values); // wait for this finish = submitting
     }
   };
+
   const handleCart = () => {
     const action = showMiniCart(state.cart.miniCart);
     dispatch(action);
     setValue(state.cart.miniCart);
-    console.log(state.cart.miniCart);
-
   };
   const handleCloseOutside = () => {
     const action = hideMiniCart(state.cart.miniCart);
     dispatch(action);
     setValue(state.cart.miniCart);
+    console.log(state.cart.miniCart);
   };
 
   const ref = useDetectClickOutside({ onTriggered: handleCloseOutside });
@@ -108,6 +106,7 @@ function AddToCart({ onSubmit = null, product = {} }) {
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className={classes.form}>
       <QuantityField name="quantity" label="Quantity" form={form} />
+
       <Button
         type="submit"
         variant="contained"
@@ -122,9 +121,15 @@ function AddToCart({ onSubmit = null, product = {} }) {
         Add To Cart
       </Button>
       {state.cart.miniCart ? (
-        <MiniCart product={product} setValue={setValue} handleCloseOutside={handleCloseOutside} />
-      ) : ""}
-
+        <MiniCart
+          product={product}
+          setValue={setValue}
+          handleCloseOutside={handleCloseOutside}
+          form={form}
+        />
+      ) : (
+        ""
+      )}
     </form>
   );
 }

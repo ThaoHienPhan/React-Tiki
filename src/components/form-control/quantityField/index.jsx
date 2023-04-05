@@ -15,6 +15,8 @@ import {
   Typography,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import { setQuantity } from "features/Cart/cartSlice";
+import { useDispatch } from "react-redux";
 
 QuantityField.propTypes = {
   form: PropTypes.object.isRequired,
@@ -36,14 +38,27 @@ const useStyles = makeStyles(() => ({
 
 function QuantityField(props) {
   const classes = useStyles();
-  const { form, name, label, disabled } = props;
+  const { form, name, label, disabled, item } = props;
   const {
     formState: { errors, ...formState },
   } = form;
-  const { setValue } = form;
+  const { setValue, getValues } = form;
   const hasError = !!errors[name];
-  // console.log(errors[name]);
+  const dispatch = useDispatch();
+  const handleQuantity = (type) => {
+    const action = setQuantity({
+      id: item?.product.id,
+      quantity:
+        type === "sub"
+          ? item?.quantity > 1
+            ? item?.quantity - 1
+            : 1
+          : item?.quantity + 1,
+    });
+    dispatch(action);
+  };
 
+  // };
   return (
     <FormControl
       error={hasError}
@@ -59,14 +74,15 @@ function QuantityField(props) {
         render={({ field, fieldState, formState }) => (
           <Box className={classes.container}>
             <IconButton
-              onClick={() =>
+              onClick={() => {
                 setValue(
                   name,
                   Number.parseInt(field.value)
                     ? Number.parseInt(field.value) - 1
                     : 1
-                )
-              }
+                );
+                handleQuantity("sub");
+              }}
             >
               <RemoveCircleOutlineIcon />
             </IconButton>
@@ -77,20 +93,21 @@ function QuantityField(props) {
               {...formState}
               fullWidth
               id={name}
-              value={field.value}
+              value={item ? item.quantity : field.value}
               type="number"
               disabled={disabled}
               className={classes.input}
             />
             <IconButton
-              onClick={() =>
+              onClick={() => {
                 setValue(
                   name,
                   Number.parseInt(field.value)
                     ? Number.parseInt(field.value) + 1
                     : 1
-                )
-              }
+                );
+                handleQuantity("add");
+              }}
             >
               <AddCircleOutlineIcon />
             </IconButton>
